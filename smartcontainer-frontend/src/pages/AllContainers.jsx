@@ -1,57 +1,81 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, ArrowLeft } from 'lucide-react';
+import { Search, ArrowLeft, Plus, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import RiskBadge from '../components/RiskBadge';
 import LoadingSpinner from '../components/LoadingSpinner';
+import { getContainers } from '../services/api';
 
 const AllContainers = () => {
   const [containers, setContainers] = useState([]);
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('ALL');
   const [loading, setLoading] = useState(true);
+
+  // Pagination State
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalRecords, setTotalRecords] = useState(0);
+
   const navigate = useNavigate();
 
+  const fetchContainers = async () => {
+    setLoading(true);
+    try {
+      const response = await getContainers(page, limit);
+      // Map Supabase columns to UI expected keys if necessary
+      const mapped = response.data.map(c => ({
+        container_id: c.Container_ID,
+        importer: c.Importer_ID,
+        exporter: c.Exporter_ID,
+        origin: c.Origin_Country,
+        destination: c.Destination_Country,
+        weight: c.Measured_Weight || 0,
+        value: c.Declared_Value || 0,
+        risk_score: c.Risk_Score !== null ? c.Risk_Score / 100 : 0,
+        risk_level: c.Risk_Level || 'LOW'
+      }));
+      setContainers(mapped);
+      setTotalPages(response.total_pages || 1);
+      setTotalRecords(response.total || 0);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchContainers = async () => {
-      setLoading(true);
-      // Mock data - replace with actual API call
-      setTimeout(() => {
-        setContainers([
-          { container_id: 'C1001', importer: 'ABC Imports Ltd', exporter: 'XYZ Exports', origin: 'China', destination: 'India', risk_score: 0.89, risk_level: 'HIGH', weight: 15000, value: 50000 },
-          { container_id: 'C1002', importer: 'Global Trade Co', exporter: 'Asia Exports', origin: 'UAE', destination: 'India', risk_score: 0.92, risk_level: 'CRITICAL', weight: 18000, value: 75000 },
-          { container_id: 'C1003', importer: 'Fast Shipping Inc', exporter: 'Euro Trade', origin: 'Singapore', destination: 'India', risk_score: 0.45, risk_level: 'MEDIUM', weight: 12000, value: 35000 },
-          { container_id: 'C1004', importer: 'Ocean Freight Ltd', exporter: 'Pacific Exports', origin: 'Hong Kong', destination: 'India', risk_score: 0.23, risk_level: 'LOW', weight: 10000, value: 25000 },
-          { container_id: 'C1005', importer: 'Swift Logistics', exporter: 'China Exports', origin: 'China', destination: 'India', risk_score: 0.78, risk_level: 'HIGH', weight: 16000, value: 60000 },
-          { container_id: 'C1006', importer: 'Trade Masters', exporter: 'Dubai Exports', origin: 'UAE', destination: 'India', risk_score: 0.15, risk_level: 'LOW', weight: 9000, value: 20000 },
-          { container_id: 'C1007', importer: 'Import Solutions', exporter: 'Asia Pacific', origin: 'Singapore', destination: 'India', risk_score: 0.56, risk_level: 'MEDIUM', weight: 13000, value: 40000 },
-          { container_id: 'C1008', importer: 'Global Imports', exporter: 'HK Trading', origin: 'Hong Kong', destination: 'India', risk_score: 0.88, risk_level: 'HIGH', weight: 17000, value: 65000 },
-        ]);
-        setLoading(false);
-      }, 500);
-    };
     fetchContainers();
-  }, []);
+  }, [page]); // Re-fetch when page changes
 
   const filtered = containers.filter(c => {
-    const matchesSearch = c.container_id.toLowerCase().includes(search.toLowerCase()) ||
-                         c.importer.toLowerCase().includes(search.toLowerCase()) ||
-                         c.origin.toLowerCase().includes(search.toLowerCase());
+    const matchesSearch = c.container_id?.toLowerCase().includes(search.toLowerCase()) ||
+      c.importer?.toLowerCase().includes(search.toLowerCase()) ||
+      c.origin?.toLowerCase().includes(search.toLowerCase());
     const matchesFilter = filter === 'ALL' || c.risk_level === filter;
     return matchesSearch && matchesFilter;
   });
 
-  if (loading) return <LoadingSpinner />;
-
   return (
     <div className="space-y-6">
-      <button
-        onClick={() => navigate(-1)}
-        className="flex items-center space-x-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-      >
-        <ArrowLeft className="w-5 h-5" />
-        <span>Back to Dashboard</span>
-      </button>
+      <div className="flex justify-between items-center">
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center space-x-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+        >
+          <ArrowLeft className="w-5 h-5" />
+          <span>Back to Dashboard</span>
+        </button>
+        <button
+          onClick={() => navigate('/create-container')}
+          className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
+        >
+          <Plus className="w-5 h-5" />
+          <span>New Container</span>
+        </button>
+      </div>
 
       <div>
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">All Containers</h1>
@@ -69,13 +93,13 @@ const AllContainers = () => {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
                 type="text"
-                placeholder="Search by container ID, importer, or origin..."
+                placeholder="Search by container ID, importer, or origin (client-side filter on this page)..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
               />
             </div>
-            
+
             <select
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
@@ -90,51 +114,78 @@ const AllContainers = () => {
           </div>
 
           <div className="mb-4 text-sm text-gray-600 dark:text-gray-400">
-            Showing {filtered.length} of {containers.length} containers
+            Showing {filtered.length} on this page (Total DB Records: {totalRecords})
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-gray-200 dark:border-gray-700">
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">Container ID</th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">Importer</th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">Exporter</th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">Origin</th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">Destination</th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">Weight (kg)</th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">Value (USD)</th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">Risk Score</th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">Risk Level</th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map((container, index) => (
-                  <motion.tr
-                    key={container.container_id}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: index * 0.03 }}
-                    onClick={() => navigate(`/container/${container.container_id}`)}
-                    className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors"
-                  >
-                    <td className="py-3 px-4 text-sm text-gray-900 dark:text-white font-medium">{container.container_id}</td>
-                    <td className="py-3 px-4 text-sm text-gray-600 dark:text-gray-300">{container.importer}</td>
-                    <td className="py-3 px-4 text-sm text-gray-600 dark:text-gray-300">{container.exporter}</td>
-                    <td className="py-3 px-4 text-sm text-gray-600 dark:text-gray-300">{container.origin}</td>
-                    <td className="py-3 px-4 text-sm text-gray-600 dark:text-gray-300">{container.destination}</td>
-                    <td className="py-3 px-4 text-sm text-gray-600 dark:text-gray-300">{container.weight.toLocaleString()}</td>
-                    <td className="py-3 px-4 text-sm text-gray-600 dark:text-gray-300">${container.value.toLocaleString()}</td>
-                    <td className="py-3 px-4 text-sm text-gray-900 dark:text-white font-semibold">{container.risk_score.toFixed(2)}</td>
-                    <td className="py-3 px-4"><RiskBadge level={container.risk_level} /></td>
-                    <td className="py-3 px-4">
-                      <button className="text-blue-500 hover:text-blue-600 text-sm font-medium">View</button>
-                    </td>
-                  </motion.tr>
-                ))}
-              </tbody>
-            </table>
+          {loading ? (
+            <LoadingSpinner />
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-gray-200 dark:border-gray-700">
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">Container ID</th>
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">Importer</th>
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">Exporter</th>
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">Origin</th>
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">Destination</th>
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">Weight (kg)</th>
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">Value (USD)</th>
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">Risk Score</th>
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">Risk Level</th>
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filtered.map((container, index) => (
+                    <motion.tr
+                      key={container.container_id}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: index * 0.03 }}
+                      onClick={() => navigate(`/container/${container.container_id}`)}
+                      className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors"
+                    >
+                      <td className="py-3 px-4 text-sm text-gray-900 dark:text-white font-medium">{container.container_id}</td>
+                      <td className="py-3 px-4 text-sm text-gray-600 dark:text-gray-300">{container.importer}</td>
+                      <td className="py-3 px-4 text-sm text-gray-600 dark:text-gray-300">{container.exporter}</td>
+                      <td className="py-3 px-4 text-sm text-gray-600 dark:text-gray-300">{container.origin}</td>
+                      <td className="py-3 px-4 text-sm text-gray-600 dark:text-gray-300">{container.destination}</td>
+                      <td className="py-3 px-4 text-sm text-gray-600 dark:text-gray-300">{container.weight.toLocaleString()}</td>
+                      <td className="py-3 px-4 text-sm text-gray-600 dark:text-gray-300">${container.value.toLocaleString()}</td>
+                      <td className="py-3 px-4 text-sm text-gray-900 dark:text-white font-semibold">{container.risk_score.toFixed(2)}</td>
+                      <td className="py-3 px-4"><RiskBadge level={container.risk_level} /></td>
+                      <td className="py-3 px-4">
+                        <button className="text-blue-500 hover:text-blue-600 text-sm font-medium">View</button>
+                      </td>
+                    </motion.tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* Pagination Controls */}
+          <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+            <div className="text-sm text-gray-600 dark:text-gray-400">
+              Page {page} of {totalPages === 0 ? 1 : totalPages}
+            </div>
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => setPage(p => Math.max(1, p - 1))}
+                disabled={page === 1 || loading}
+                className="p-2 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 disabled:opacity-50 hover:bg-gray-50 dark:hover:bg-gray-700"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+              <button
+                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                disabled={page >= totalPages || loading}
+                className="p-2 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 disabled:opacity-50 hover:bg-gray-50 dark:hover:bg-gray-700"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            </div>
           </div>
         </div>
       </motion.div>

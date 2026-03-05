@@ -81,6 +81,26 @@ export const uploadContainers = async (file) => {
   }
 };
 
+export const createContainer = async (containerData) => {
+  try {
+    const response = await api.post('/container', containerData);
+    return response.data;
+  } catch (error) {
+    console.error('Error creating container:', error);
+    throw error;
+  }
+};
+
+export const getContainers = async (page = 1, limit = 20) => {
+  try {
+    const response = await api.get(`/containers?page=${page}&limit=${limit}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching paginated containers:', error);
+    return { data: [], page: 1, limit: 20, total: 0, total_pages: 0 };
+  }
+};
+
 export const getContainerDetails = async (id) => {
   try {
     const response = await api.get(`/container/${id}`);

@@ -17,6 +17,7 @@ import DetectedAnomalies from './pages/DetectedAnomalies';
 import ActiveRoutes from './pages/ActiveRoutes';
 import HighRiskRoutes from './pages/HighRiskRoutes';
 import ImporterDetails from './pages/ImporterDetails';
+import CreateContainer from './pages/CreateContainer';
 
 function App() {
   const [darkMode, setDarkMode] = useState(false);
@@ -48,7 +49,7 @@ function App() {
         <Route path="/login" element={
           isAuthenticated ? <Navigate to="/" replace /> : <Login onLogin={handleLogin} />
         } />
-        
+
         <Route path="/*" element={
           <ProtectedRoute isAuthenticated={isAuthenticated}>
             <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
@@ -60,6 +61,7 @@ function App() {
                     <Route path="/" element={<Dashboard />} />
                     <Route path="/upload" element={<UploadPage />} />
                     <Route path="/containers" element={<AllContainers />} />
+                    <Route path="/create-container" element={<CreateContainer />} />
                     <Route path="/high-risk" element={<HighRiskContainers />} />
                     <Route path="/low-risk" element={<LowRiskContainers />} />
                     <Route path="/anomalies" element={<DetectedAnomalies />} />
