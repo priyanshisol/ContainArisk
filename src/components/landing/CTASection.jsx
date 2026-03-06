@@ -26,8 +26,7 @@ const CTASection = () => {
                         shipping operations?
                     </h2>
                     <p className="text-white/60 mt-5 max-w-lg mx-auto text-[15px] leading-relaxed">
-                        Start analyzing container risk in minutes. No setup required.
-                        Join thousands of logistics professionals worldwide.
+                        Start analyzing container risk in minutes. No setup required. Analyze now.
                     </p>
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-10">
                         <motion.button
@@ -39,14 +38,7 @@ const CTASection = () => {
                             <span>Get Started Free</span>
                             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                         </motion.button>
-                        <motion.button
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                            onClick={() => navigate('/login')}
-                            className="px-8 py-3.5 bg-white/10 hover:bg-white/15 text-white text-sm font-semibold rounded-full border border-white/20 transition-all"
-                        >
-                            Contact Sales
-                        </motion.button>
+
                     </div>
                 </motion.div>
             </div>

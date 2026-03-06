@@ -14,6 +14,18 @@ const RiskHeatmap = ({ data }) => {
     return '#10b981';
   };
 
+  const CustomHeatmapTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 shadow-md transition-colors">
+          <p className="text-sm font-bold text-[#1B2A4A] dark:text-slate-100">{label}</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Count: {payload[0].value}</p>
+        </div>
+      );
+    }
+    return null;
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -27,17 +39,8 @@ const RiskHeatmap = ({ data }) => {
           <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
           <XAxis dataKey="country" stroke="#6b7280" fontSize={12} tickLine={false} axisLine={false} />
           <YAxis stroke="#6b7280" fontSize={12} tickLine={false} axisLine={false} />
-          <Tooltip
-            contentStyle={{
-              backgroundColor: '#ffffff',
-              border: '1px solid #e5e7eb',
-              borderRadius: '12px',
-              color: '#1B2A4A',
-              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-            }}
-            itemStyle={{ color: '#1B2A4A', fontWeight: 600 }}
-          />
-          <Bar dataKey="count" radius={[8, 8, 0, 0]}>
+          <Tooltip content={<CustomHeatmapTooltip />} cursor={{ fill: 'rgba(59, 130, 246, 0.05)' }} />
+          <Bar dataKey="count" name="Count" radius={[8, 8, 0, 0]}>
             {chartData.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={getColor(entry.count)} />
             ))}

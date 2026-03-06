@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Check, X, Facebook, Twitter, Instagram, Youtube } from 'lucide-react';
+import { Check, X } from 'lucide-react';
 
 const Login = ({ onLogin }) => {
   const [credentials, setCredentials] = useState({ username: '', password: '' });
@@ -83,46 +83,32 @@ const Login = ({ onLogin }) => {
             Our system does not just predict risk. It builds a full customs intelligence platform that prioritizes inspections, detects trade fraud networks, and explains suspicious shipments.
           </p>
 
-          <div className="flex gap-4">
-            <a href="#" className="w-9 h-9 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition-colors">
-              <Facebook className="w-4 h-4 text-white" />
-            </a>
-            <a href="#" className="w-9 h-9 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition-colors">
-              <Twitter className="w-4 h-4 text-white" />
-            </a>
-            <a href="#" className="w-9 h-9 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition-colors">
-              <Instagram className="w-4 h-4 text-white" />
-            </a>
-            <a href="#" className="w-9 h-9 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition-colors">
-              <Youtube className="w-4 h-4 text-white" />
-            </a>
-          </div>
         </motion.div>
 
-        {/* Right Side Container */}
+        {/* Right Side Container - Translucent Dialog */}
         <motion.div
           initial={{ opacity: 0, x: 30 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-          className="w-full md:w-1/2 max-w-[420px]"
+          className="w-full md:w-1/2 max-w-[440px] bg-black/20 backdrop-blur-xl rounded-3xl p-10 shadow-2xl text-white border border-white/10"
         >
           <h2 className="text-4xl font-bold mb-8 tracking-tight">Sign in</h2>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-4 pt-4">
             <div>
-              <label className="block text-sm font-medium mb-1.5">Email Address</label>
+              <label className="block text-[13px] font-medium text-gray-300 mb-1.5 uppercase tracking-wider">Email Address</label>
               <input
                 type="text"
                 value={credentials.username}
                 onChange={(e) => setCredentials({ ...credentials, username: e.target.value })}
-                className="w-full px-4 py-3 bg-white text-black font-medium focus:ring-2 focus:ring-[#D8572A] outline-none transition-all placeholder-gray-400"
-                placeholder=""
+                className="w-full px-4 py-3 bg-white/10 text-white border border-white/20 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-transparent outline-none transition-all placeholder-white/40"
+                placeholder="Enter your officer ID"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1.5">Password</label>
+              <label className="block text-[13px] font-medium text-gray-300 mb-1.5 uppercase tracking-wider">Password</label>
               <input
                 type="password"
                 value={credentials.password}
@@ -130,12 +116,12 @@ const Login = ({ onLogin }) => {
                   setCredentials({ ...credentials, password: e.target.value });
                   setShowValidation(true);
                 }}
-                className="w-full px-4 py-3 bg-white text-black font-medium focus:ring-2 focus:ring-[#D8572A] outline-none transition-all placeholder-gray-400"
-                placeholder=""
+                className="w-full px-4 py-3 bg-white/10 text-white border border-white/20 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-transparent outline-none transition-all placeholder-white/40"
+                placeholder="••••••••"
                 required
               />
               {showValidation && credentials.password && (
-                <div className="mt-2 p-3 bg-black/50 border border-white/10 space-y-1.5 backdrop-blur-md text-white">
+                <div className="mt-3 p-3 bg-black/40 border border-white/10 rounded-xl space-y-1.5 text-gray-300 backdrop-blur-md">
                   <ValidationItem valid={validation.minLength} text="At least 8 characters" />
                   <ValidationItem valid={validation.hasNumber} text="Contains a number" />
                   <ValidationItem valid={validation.hasLower} text="Contains lowercase letter" />
@@ -157,30 +143,30 @@ const Login = ({ onLogin }) => {
                 id="remember"
                 checked={rememberMe}
                 onChange={(e) => setRememberMe(e.target.checked)}
-                className="w-3.5 h-3.5 bg-white border-0 text-[#D8572A] cursor-pointer"
+                className="w-4 h-4 rounded text-blue-500 focus:ring-blue-500 border-gray-400 cursor-pointer bg-transparent"
               />
-              <label htmlFor="remember" className="text-sm cursor-pointer hover:text-gray-200 transition-colors">Remember Me</label>
-            </div>
-
-            <div className="pt-1">
-              <button
-                type="submit"
-                disabled={loading || !isPasswordValid}
-                className="bg-[#DE652E] hover:bg-[#E85D04] text-white px-8 py-2.5 shadow-lg shadow-[#DE652E]/20 text-[15px] font-medium transition-all disabled:opacity-50"
-              >
-                {loading ? 'Signing in...' : 'Sign in now'}
-              </button>
+              <label htmlFor="remember" className="text-sm cursor-pointer text-gray-300 hover:text-white transition-colors">Remember Me</label>
             </div>
 
             <div className="pt-2">
-              <a href="#" className="text-[13px] text-gray-300 hover:text-white hover:underline transition-colors">
+              <button
+                type="submit"
+                disabled={loading || !isPasswordValid}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-xl py-3.5 shadow-lg shadow-blue-600/25 font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                {loading ? 'Authenticating...' : 'Sign In to Dashboard'}
+              </button>
+            </div>
+
+            <div className="pt-3 text-center">
+              <a href="#" className="text-sm font-medium text-gray-300 hover:text-white transition-colors">
                 Lost your password?
               </a>
             </div>
 
-            <div className="pt-6 text-[13px] text-gray-300 leading-relaxed">
-              By clicking on "Sign in now" you agree to<br />
-              <a href="#" className="underline hover:text-white transition-colors">Terms of Service</a> | <a href="#" className="underline hover:text-white transition-colors">Privacy Policy</a>
+            <div className="pt-4 text-center text-xs text-gray-400 leading-relaxed font-medium">
+              By signing in, you agree to CONTAIN'A'RISK's<br />
+              <a href="#" className="hover:text-gray-200 transition-colors">Terms of Service</a> &middot; <a href="#" className="hover:text-gray-200 transition-colors">Privacy Policy</a>
             </div>
           </form>
         </motion.div>

@@ -28,62 +28,62 @@ function AnimatedRoutes({ isAuthenticated }) {
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
         <Route path="/dashboard" element={
-          <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" className="h-full">
+          <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" className="w-full">
             <Dashboard />
           </motion.div>
         } />
         <Route path="/upload" element={
-          <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" className="h-full">
+          <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" className="w-full">
             <UploadPage />
           </motion.div>
         } />
         <Route path="/containers" element={
-          <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" className="h-full">
+          <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" className="w-full">
             <AllContainers />
           </motion.div>
         } />
         <Route path="/high-risk" element={
-          <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" className="h-full">
+          <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" className="w-full">
             <HighRiskContainers />
           </motion.div>
         } />
         <Route path="/low-risk" element={
-          <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" className="h-full">
+          <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" className="w-full">
             <LowRiskContainers />
           </motion.div>
         } />
         <Route path="/anomalies" element={
-          <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" className="h-full">
+          <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" className="w-full">
             <DetectedAnomalies />
           </motion.div>
         } />
         <Route path="/active-routes" element={
-          <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" className="h-full">
+          <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" className="w-full">
             <ActiveRoutes />
           </motion.div>
         } />
         <Route path="/high-risk-routes" element={
-          <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" className="h-full">
+          <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" className="w-full">
             <HighRiskRoutes />
           </motion.div>
         } />
         <Route path="/importer/:name" element={
-          <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" className="h-full">
+          <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" className="w-full">
             <ImporterDetails />
           </motion.div>
         } />
         <Route path="/container/:id" element={
-          <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" className="h-full">
+          <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" className="w-full">
             <ContainerDetails />
           </motion.div>
         } />
         <Route path="/insights" element={
-          <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" className="h-full">
+          <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" className="w-full">
             <Insights />
           </motion.div>
         } />
         <Route path="/intelligence" element={
-          <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" className="h-full">
+          <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" className="w-full">
             <Intelligence />
           </motion.div>
         } />
@@ -138,11 +138,15 @@ function App() {
 
         <Route path="/*" element={
           <ProtectedRoute isAuthenticated={isAuthenticated}>
-            <div className="min-h-screen bg-[#F8F9FB] dark:bg-[#0B1120] text-[#1B2A4A] dark:text-slate-100 overflow-x-hidden transition-colors duration-200" style={{ fontFamily: "'Inter', sans-serif" }}>
-              <Navbar darkMode={darkMode} setDarkMode={setDarkMode} onLogout={handleLogout} />
-              <div className="flex">
-                <Sidebar />
-                <main className="flex-1 p-8 overflow-y-auto min-h-[calc(100vh-73px)]">
+            <div className="h-screen bg-[#F8F9FB] dark:bg-[#0B1120] text-[#1B2A4A] dark:text-slate-100 overflow-hidden flex flex-col transition-colors duration-200" style={{ fontFamily: "'Inter', sans-serif" }}>
+              <div className="flex-none z-50">
+                <Navbar darkMode={darkMode} setDarkMode={setDarkMode} onLogout={handleLogout} />
+              </div>
+              <div className="flex flex-1 overflow-hidden">
+                <div className="flex-none z-40 relative">
+                  <Sidebar className="h-full" />
+                </div>
+                <main className="flex-1 p-8 pb-24 overflow-y-auto relative z-10">
                   <AnimatedRoutes isAuthenticated={isAuthenticated} />
                 </main>
               </div>

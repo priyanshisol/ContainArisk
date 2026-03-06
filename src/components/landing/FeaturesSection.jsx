@@ -32,14 +32,6 @@ const SolutionsSection = () => {
                             Leverage AI-driven intelligence to predict shipping delays, detect anomalies, and analyze global threat vectors in real time.
                         </p>
 
-                        <motion.button
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                            className="group flex items-center space-x-2 mt-8 px-6 py-3 bg-[#1B2A4A] hover:bg-[#243656] text-white text-sm font-semibold rounded-full transition-colors"
-                        >
-                            <span>Get Started</span>
-                            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                        </motion.button>
                     </motion.div>
 
                     {/* Right: Feature grid */}

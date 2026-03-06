@@ -85,19 +85,6 @@ const Sidebar = () => {
         })}
       </nav>
 
-      {/* Bottom section */}
-      <div className="px-4 py-5 border-t border-gray-100 dark:border-slate-800 transition-colors duration-200">
-        <div className="flex items-center space-x-3 px-2">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-xs font-bold shadow-md shadow-blue-500/20">
-            SC
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-xs font-semibold text-[#1B2A4A] dark:text-slate-100 truncate">CONTAIN'A'RISK</p>
-            <p className="text-[10px] text-gray-500 dark:text-gray-400">v1.0.0 · Active</p>
-          </div>
-          <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/50"></div>
-        </div>
-      </div>
     </aside>
   );
 };
