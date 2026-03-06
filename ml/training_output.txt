@@ -1,0 +1,104 @@
+======================================================================
+  SHIPMENT ANOMALY DETECTION — TRAINING PIPELINE
+======================================================================
+
+[1/9] Loading historical dataset ...
+  Rows : 54,000
+  Cols : 16
+  Clearance distribution:
+Clearance_Status
+Clear       42347
+Low Risk    11108
+Critical      545
+
+[2/9] Engineering features (fit mode) ...
+  Feature columns : 58
+  Rows            : 54,000
+
+[3/9] Separating features and target ...
+  Features shape : (54000, 57)
+  Target balance : {0: 53455, 1: 545}
+  Anomaly rate   : 0.0101
+
+[4/9] Splitting data (80/20, stratified) ...
+  Train : 43,200 samples
+  Test  : 10,800 samples
+
+[5/9] Building RandomForest with regularisation ...
+  Parameters:
+    class_weight              = balanced
+    max_depth                 = 10
+    max_features              = sqrt
+    min_samples_leaf          = 5
+    min_samples_split         = 10
+    n_estimators              = 100
+
+[6/9] 5-fold Stratified Cross Validation ...
+
+  Metric              Mean      Std
+  ---------------------------------
+  Accuracy          0.9967   0.0009
+  Precision         0.7862   0.0402
+  Recall            0.9242   0.0441
+  F1 Score          0.8494   0.0394
+
+  Per-fold Accuracy : [0.9968 0.995  0.9975 0.9969 0.9973]
+  Per-fold F1       : [0.8478 0.7749 0.883  0.8615 0.8796]
+
+[7/9] Training model on full training set ...
+  Training complete.
+
+[8/9] Evaluating on held-out test set ...
+
+  Test Accuracy  : 0.9976
+  Test Precision : 0.8487
+  Test Recall    : 0.9266
+  Test F1 Score  : 0.8860
+
+  Mean CV Accuracy : 0.9967
+  Std  CV Accuracy : 0.0009
+
+  Confusion Matrix:
+               Pred 0   Pred 1
+      Actual 0  10673       18
+      Actual 1      8      101
+
+  Classification Report:
+              precision    recall  f1-score   support
+
+      Normal     0.9993    0.9983    0.9988     10691
+     Anomaly     0.8487    0.9266    0.8860       109
+
+    accuracy                         0.9976     10800
+   macro avg     0.9240    0.9625    0.9424     10800
+weighted avg     0.9977    0.9976    0.9976     10800
+
+[9/9] Feature Importances (Top 20):
+    1. weight_risk_score                        0.2089
+    2. hs_code_risk_score                       0.1899
+    3. weight_deviation_percent                 0.1460
+    4. weight_ratio                             0.0808
+    5. risk_percentile                          0.0725
+    6. dwell_time_hours                         0.0452
+    7. normalized_dwell_time                    0.0380
+    8. route_risk_rate                          0.0355
+    9. network_risk_propagation                 0.0304
+   10. shipment_chain_risk                      0.0253
+   11. clearance_delay_indicator                0.0232
+   12. entity_route_risk_score                  0.0227
+   13. hs_code                                  0.0143
+   14. weight_difference                        0.0082
+   15. value_risk_score                         0.0069
+   16. value_deviation_from_hs_average          0.0036
+   17. measured_weight                          0.0025
+   18. origin_country_freq                      0.0025
+   19. commodity_price_deviation                0.0024
+   20. log_value_weight_ratio                   0.0023
+
+======================================================================
+  Model saved → C:\Users\priya\OneDrive\Desktop\hachamined\Skill_Deprived\ml\models\anomaly_detection_model.pkl
+  Feature stats saved → C:\Users\priya\OneDrive\Desktop\hachamined\Skill_Deprived\ml\models\feature_stats.pkl
+
+======================================================================
+  TRAINING COMPLETE
+======================================================================
