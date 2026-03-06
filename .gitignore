@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+
+# Environment
+.env
+.venv/
+venv/
+env/
+
+# ML model artifacts
+backend/models/*.joblib
+ml/feature_importance.png
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Reports (generated output)
+*.report.txt
+backend/validation_report.txt
+backend/realtime_report.txt
+
+# Node.js
+node_modules/
+.next/
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
