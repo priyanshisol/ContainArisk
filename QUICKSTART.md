@@ -4,7 +4,7 @@
 
 ### 1. Install Dependencies
 ```bash
-cd smartcontainer-frontend
+cd frontend
 npm install --legacy-peer-deps
 ```
 

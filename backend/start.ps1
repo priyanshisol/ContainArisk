@@ -10,7 +10,7 @@ Set-Location "$PSScriptRoot"
 $modelPath = ".\models\risk_model.joblib"
 if (-not (Test-Path $modelPath)) {
     Write-Host "ML model not found. Training now (this takes ~2 min)..." -ForegroundColor Yellow
-    python ..\ml\train.py
+    python ..\ml\training\train.py
     Write-Host "Training complete." -ForegroundColor Green
 }
 else {
@@ -22,4 +22,4 @@ Write-Host "Backend running at: http://localhost:8000" -ForegroundColor Green
 Write-Host "Swagger UI at:      http://localhost:8000/docs" -ForegroundColor Green
 Write-Host ""
 
-uvicorn app.main:app --reload --port 8000
+uvicorn main:app --reload --port 8000

@@ -35,7 +35,7 @@ An advanced analytics frontend for detecting high-risk shipping containers using
 
 1. Navigate to the project directory:
 ```bash
-cd smartcontainer-frontend
+cd frontend
 ```
 
 2. Install dependencies:

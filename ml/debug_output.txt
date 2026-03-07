@@ -1,4 +1,340 @@
-﻿======================================================================
+﻿python : C:\Users\pri
+ya\AppData\Local\Prog
+rams\Python\Python313
+\Lib\site-packages\da
+teutil\tz\tz.py:37: 
+DeprecationWarning: d
+atetime.datetime.utcf
+romtimestamp() is 
+deprecated and 
+scheduled for 
+removal in a future 
+version. Use 
+timezone-aware 
+objects to represent 
+datetimes in UTC: dat
+etime.datetime.fromti
+mestamp(timestamp, 
+datetime.UTC).
+At line:1 char:32
++ ... PYTHONIOENCODIN
+G='utf-8'; python 
+-Wall 
+ml/train_model.py 
+2>&1 | Out-F ...
++                    
+           ~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
+~~~~
+    + CategoryInfo   
+           : NotSpe  
+  cified: (C:\User   
+ s\priya\... date    
+time.UTC).:Strin    
+g) [], RemoteExc    
+eption
+    + FullyQualified 
+   ErrorId : Native  
+  CommandError
+ 
+  EPOCH = datetime.da
+tetime.utcfromtimesta
+mp(0)
+C:\Users\priya\AppDat
+a\Local\Programs\Pyth
+on\Python313\Lib\site
+-packages\dateutil\tz
+\tz.py:37: 
+DeprecationWarning: d
+atetime.datetime.utcf
+romtimestamp() is 
+deprecated and 
+scheduled for 
+removal in a future 
+version. Use 
+timezone-aware 
+objects to represent 
+datetimes in UTC: dat
+etime.datetime.fromti
+mestamp(timestamp, 
+datetime.UTC).
+  EPOCH = datetime.da
+tetime.utcfromtimesta
+mp(0)
+C:\Users\priya\AppDat
+a\Local\Programs\Pyth
+on\Python313\Lib\site
+-packages\dateutil\tz
+\tz.py:37: 
+DeprecationWarning: d
+atetime.datetime.utcf
+romtimestamp() is 
+deprecated and 
+scheduled for 
+removal in a future 
+version. Use 
+timezone-aware 
+objects to represent 
+datetimes in UTC: dat
+etime.datetime.fromti
+mestamp(timestamp, 
+datetime.UTC).
+  EPOCH = datetime.da
+tetime.utcfromtimesta
+mp(0)
+C:\Users\priya\AppDat
+a\Local\Programs\Pyth
+on\Python313\Lib\site
+-packages\dateutil\tz
+\tz.py:37: 
+DeprecationWarning: d
+atetime.datetime.utcf
+romtimestamp() is 
+deprecated and 
+scheduled for 
+removal in a future 
+version. Use 
+timezone-aware 
+objects to represent 
+datetimes in UTC: dat
+etime.datetime.fromti
+mestamp(timestamp, 
+datetime.UTC).
+  EPOCH = datetime.da
+tetime.utcfromtimesta
+mp(0)
+C:\Users\priya\AppDat
+a\Local\Programs\Pyth
+on\Python313\Lib\site
+-packages\dateutil\tz
+\tz.py:37: 
+DeprecationWarning: d
+atetime.datetime.utcf
+romtimestamp() is 
+deprecated and 
+scheduled for 
+removal in a future 
+version. Use 
+timezone-aware 
+objects to represent 
+datetimes in UTC: dat
+etime.datetime.fromti
+mestamp(timestamp, 
+datetime.UTC).
+  EPOCH = datetime.da
+tetime.utcfromtimesta
+mp(0)
+C:\Users\priya\AppDat
+a\Local\Programs\Pyth
+on\Python313\Lib\site
+-packages\dateutil\tz
+\tz.py:37: 
+DeprecationWarning: d
+atetime.datetime.utcf
+romtimestamp() is 
+deprecated and 
+scheduled for 
+removal in a future 
+version. Use 
+timezone-aware 
+objects to represent 
+datetimes in UTC: dat
+etime.datetime.fromti
+mestamp(timestamp, 
+datetime.UTC).
+  EPOCH = datetime.da
+tetime.utcfromtimesta
+mp(0)
+C:\Users\priya\AppDat
+a\Local\Programs\Pyth
+on\Python313\Lib\site
+-packages\dateutil\tz
+\tz.py:37: 
+DeprecationWarning: d
+atetime.datetime.utcf
+romtimestamp() is 
+deprecated and 
+scheduled for 
+removal in a future 
+version. Use 
+timezone-aware 
+objects to represent 
+datetimes in UTC: dat
+etime.datetime.fromti
+mestamp(timestamp, 
+datetime.UTC).
+  EPOCH = datetime.da
+tetime.utcfromtimesta
+mp(0)
+C:\Users\priya\AppDat
+a\Local\Programs\Pyth
+on\Python313\Lib\site
+-packages\dateutil\tz
+\tz.py:37: 
+DeprecationWarning: d
+atetime.datetime.utcf
+romtimestamp() is 
+deprecated and 
+scheduled for 
+removal in a future 
+version. Use 
+timezone-aware 
+objects to represent 
+datetimes in UTC: dat
+etime.datetime.fromti
+mestamp(timestamp, 
+datetime.UTC).
+  EPOCH = datetime.da
+tetime.utcfromtimesta
+mp(0)
+C:\Users\priya\AppDat
+a\Local\Programs\Pyth
+on\Python313\Lib\site
+-packages\dateutil\tz
+\tz.py:37: 
+DeprecationWarning: d
+atetime.datetime.utcf
+romtimestamp() is 
+deprecated and 
+scheduled for 
+removal in a future 
+version. Use 
+timezone-aware 
+objects to represent 
+datetimes in UTC: dat
+etime.datetime.fromti
+mestamp(timestamp, 
+datetime.UTC).
+  EPOCH = datetime.da
+tetime.utcfromtimesta
+mp(0)
+C:\Users\priya\AppDat
+a\Local\Programs\Pyth
+on\Python313\Lib\site
+-packages\dateutil\tz
+\tz.py:37: 
+DeprecationWarning: d
+atetime.datetime.utcf
+romtimestamp() is 
+deprecated and 
+scheduled for 
+removal in a future 
+version. Use 
+timezone-aware 
+objects to represent 
+datetimes in UTC: dat
+etime.datetime.fromti
+mestamp(timestamp, 
+datetime.UTC).
+  EPOCH = datetime.da
+tetime.utcfromtimesta
+mp(0)
+C:\Users\priya\AppDat
+a\Local\Programs\Pyth
+on\Python313\Lib\site
+-packages\dateutil\tz
+\tz.py:37: 
+DeprecationWarning: d
+atetime.datetime.utcf
+romtimestamp() is 
+deprecated and 
+scheduled for 
+removal in a future 
+version. Use 
+timezone-aware 
+objects to represent 
+datetimes in UTC: dat
+etime.datetime.fromti
+mestamp(timestamp, 
+datetime.UTC).
+  EPOCH = datetime.da
+tetime.utcfromtimesta
+mp(0)
+C:\Users\priya\AppDat
+a\Local\Programs\Pyth
+on\Python313\Lib\site
+-packages\dateutil\tz
+\tz.py:37: 
+DeprecationWarning: d
+atetime.datetime.utcf
+romtimestamp() is 
+deprecated and 
+scheduled for 
+removal in a future 
+version. Use 
+timezone-aware 
+objects to represent 
+datetimes in UTC: dat
+etime.datetime.fromti
+mestamp(timestamp, 
+datetime.UTC).
+  EPOCH = datetime.da
+tetime.utcfromtimesta
+mp(0)
+C:\Users\priya\AppDat
+a\Local\Programs\Pyth
+on\Python313\Lib\site
+-packages\dateutil\tz
+\tz.py:37: 
+DeprecationWarning: d
+atetime.datetime.utcf
+romtimestamp() is 
+deprecated and 
+scheduled for 
+removal in a future 
+version. Use 
+timezone-aware 
+objects to represent 
+datetimes in UTC: dat
+etime.datetime.fromti
+mestamp(timestamp, 
+datetime.UTC).
+  EPOCH = datetime.da
+tetime.utcfromtimesta
+mp(0)
+C:\Users\priya\AppDat
+a\Local\Programs\Pyth
+on\Python313\Lib\site
+-packages\dateutil\tz
+\tz.py:37: 
+DeprecationWarning: d
+atetime.datetime.utcf
+romtimestamp() is 
+deprecated and 
+scheduled for 
+removal in a future 
+version. Use 
+timezone-aware 
+objects to represent 
+datetimes in UTC: dat
+etime.datetime.fromti
+mestamp(timestamp, 
+datetime.UTC).
+  EPOCH = datetime.da
+tetime.utcfromtimesta
+mp(0)
+C:\Users\priya\AppDat
+a\Local\Programs\Pyth
+on\Python313\Lib\site
+-packages\dateutil\tz
+\tz.py:37: 
+DeprecationWarning: d
+atetime.datetime.utcf
+romtimestamp() is 
+deprecated and 
+scheduled for 
+removal in a future 
+version. Use 
+timezone-aware 
+objects to represent 
+datetimes in UTC: dat
+etime.datetime.fromti
+mestamp(timestamp, 
+datetime.UTC).
+  EPOCH = datetime.da
+tetime.utcfromtimesta
+mp(0)
+======================================================================
   SHIPMENT ANOMALY DETECTION ΓÇö TRAINING PIPELINE
 ======================================================================
 
