@@ -81,7 +81,7 @@ function ContainersContent() {
         try {
           return JSON.parse(text);
         } catch (e) {
-          throw new Error(`Invalid JSON response: ${text.substring(0, 100)}`);
+          throw new Error(`Invalid JSON response`);
         }
       })
       .then(data => {
@@ -94,12 +94,31 @@ function ContainersContent() {
         setTotal(data.total || list.length);
         setLoading(false);
       })
-      .catch(err => {
+      .catch(async (err) => {
         if (!alive) return;
-        console.error('Fetch error:', err);
-        setError(err?.message || String(err));
-        setRows([]);
-        setTotal(0);
+        console.warn('Fetch error, attempting static data fallback:', err);
+        try {
+          let fallbackFile = 'all-containers.json';
+          if (filter === 'critical')      fallbackFile = 'critical-containers.json';
+          else if (filter === 'high')     fallbackFile = 'high-risk-containers.json';
+          else if (filter === 'medium')   fallbackFile = 'medium-risk-containers.json';
+          else if (filter === 'low')      fallbackFile = 'low-risk-containers.json';
+
+          const res = await fetch(`/data/${fallbackFile}`);
+          if (!res.ok) {
+            throw new Error(`Fallback file not found: ${fallbackFile}`);
+          }
+          const data = await res.json();
+          const list = Array.isArray(data.data) ? data.data.map(normalize) : [];
+          setRows(list);
+          setTotal(data.total || list.length);
+          setError(null);
+        } catch (fallbackErr) {
+          console.error('Fallback error:', fallbackErr);
+          setError('Backend server is unreachable, and static fallback data could not be loaded.');
+          setRows([]);
+          setTotal(0);
+        }
         setLoading(false);
       });
     

@@ -5,8 +5,9 @@ import os
 import math
 from collections import defaultdict
 
-DATA_DIR = '/Users/aahanajaygajera/Desktop/ContainArisk/data/datasets/hackooo'
-OUT_DIR = '/Users/aahanajaygajera/Desktop/ContainArisk/frontend/public/data'
+script_dir = os.path.dirname(os.path.abspath(__file__))
+DATA_DIR = os.path.abspath(os.path.join(script_dir, '..', '..', 'data', 'datasets', 'hackooo'))
+OUT_DIR = os.path.abspath(os.path.join(script_dir, '..', 'public', 'data'))
 
 def num(v):
     try:
@@ -20,6 +21,25 @@ def risk_level(row):
     if rl == 'HIGH': return 'HIGH'
     if rl == 'MEDIUM': return 'MEDIUM'
     return 'LOW'
+
+def format_row(r, level):
+    return {
+        'container_id': r.get('Container_ID'),
+        'importer': r.get('Importer_ID'),
+        'exporter': r.get('Exporter_ID'),
+        'origin': r.get('Origin_Country'),
+        'destination': r.get('Destination_Country'),
+        'hs_code': r.get('HS_Code'),
+        'weight': num(r.get('Measured_Weight')),
+        'declared_weight': num(r.get('Declared_Weight')),
+        'declared_value': num(r.get('Declared_Value')),
+        'risk_score': num(r.get('Risk_Score')) / 100,
+        'risk_level': level,
+        'entity_trust_score': num(r.get('entity_trust_score')),
+        'weight_deviation_percent': num(r.get('weight_deviation_percent')),
+        'seal_tamper_prob': num(r.get('seal_tamper_prob')),
+        'tax_evasion_prob': num(r.get('tax_evasion_prob')),
+    }
 
 COORDS = {
     'CN': {'lat': 35.86, 'lon': 104.20}, 'DE': {'lat': 51.17, 'lon': 10.45},
@@ -97,71 +117,58 @@ risk_dist = {
 with open(os.path.join(OUT_DIR, 'risk-distribution.json'), 'w') as f:
     json.dump(risk_dist, f)
 
+# Helper to write list
+def write_fallback_file(filename, rows, level, total_count):
+    formatted = [format_row(r, level) for r in rows[:200]]
+    with open(os.path.join(OUT_DIR, filename), 'w') as f:
+        json.dump({
+            'data': formatted,
+            'total': total_count,
+            'page': 1,
+            'limit': 200,
+            'total_pages': math.ceil(total_count / 200)
+        }, f)
+    return formatted
+
 # 3) Critical
 critical_rows = [r for r in all_list if risk_level(r) == 'CRITICAL']
 critical_rows.sort(key=lambda r: num(r.get('Risk_Score', 0)), reverse=True)
-crit_data = []
-for r in critical_rows[:50]:
-    crit_data.append({
-        'container_id': r.get('Container_ID'),
-        'importer': r.get('Importer_ID'),
-        'exporter': r.get('Exporter_ID'),
-        'origin': r.get('Origin_Country'),
-        'destination': r.get('Destination_Country'),
-        'hs_code': r.get('HS_Code'),
-        'weight': num(r.get('Measured_Weight')),
-        'declared_weight': num(r.get('Declared_Weight')),
-        'declared_value': num(r.get('Declared_Value')),
-        'risk_score': num(r.get('Risk_Score')) / 100,
-        'risk_level': 'CRITICAL',
-        'entity_trust_score': num(r.get('entity_trust_score')),
-        'weight_deviation_percent': num(r.get('weight_deviation_percent')),
-        'seal_tamper_prob': num(r.get('seal_tamper_prob')),
-        'tax_evasion_prob': num(r.get('tax_evasion_prob')),
-    })
-
-with open(os.path.join(OUT_DIR, 'critical-containers.json'), 'w') as f:
-    json.dump({
-        'data': crit_data,
-        'total': counts['CRITICAL'],
-        'page': 1,
-        'limit': 50,
-        'total_pages': math.ceil(counts['CRITICAL'] / 50)
-    }, f)
+crit_data = write_fallback_file('critical-containers.json', critical_rows, 'CRITICAL', counts['CRITICAL'])
 
 # 4) High
 high_rows = [r for r in all_list if risk_level(r) == 'HIGH']
 high_rows.sort(key=lambda r: num(r.get('Risk_Score', 0)), reverse=True)
-high_data = []
-for r in high_rows[:50]:
-    high_data.append({
-        'container_id': r.get('Container_ID'),
-        'importer': r.get('Importer_ID'),
-        'exporter': r.get('Exporter_ID'),
-        'origin': r.get('Origin_Country'),
-        'destination': r.get('Destination_Country'),
-        'hs_code': r.get('HS_Code'),
-        'weight': num(r.get('Measured_Weight')),
-        'declared_weight': num(r.get('Declared_Weight')),
-        'declared_value': num(r.get('Declared_Value')),
-        'risk_score': num(r.get('Risk_Score')) / 100,
-        'risk_level': 'HIGH',
-        'entity_trust_score': num(r.get('entity_trust_score')),
-        'weight_deviation_percent': num(r.get('weight_deviation_percent')),
-        'seal_tamper_prob': num(r.get('seal_tamper_prob')),
-        'tax_evasion_prob': num(r.get('tax_evasion_prob')),
-    })
+high_data = write_fallback_file('high-risk-containers.json', high_rows, 'HIGH', counts['HIGH'])
 
-with open(os.path.join(OUT_DIR, 'high-risk-containers.json'), 'w') as f:
+# 5) Medium
+medium_rows = [r for r in all_list if risk_level(r) == 'MEDIUM']
+medium_rows.sort(key=lambda r: num(r.get('Risk_Score', 0)), reverse=True)
+med_data = write_fallback_file('medium-risk-containers.json', medium_rows, 'MEDIUM', counts['MEDIUM'])
+
+# 6) Low
+low_rows = [r for r in all_list if risk_level(r) == 'LOW']
+low_rows.sort(key=lambda r: num(r.get('Risk_Score', 0)), reverse=True)
+low_data = write_fallback_file('low-risk-containers.json', low_rows, 'LOW', counts['LOW'])
+
+# 7) Combined Fallback for 'All'
+all_fallback_rows = []
+all_fallback_rows.extend(critical_rows[:125])
+all_fallback_rows.extend(high_rows[:125])
+all_fallback_rows.extend(medium_rows[:125])
+all_fallback_rows.extend(low_rows[:125])
+all_fallback_rows.sort(key=lambda r: num(r.get('Risk_Score', 0)), reverse=True)
+
+all_formatted = [format_row(r, risk_level(r)) for r in all_fallback_rows]
+with open(os.path.join(OUT_DIR, 'all-containers.json'), 'w') as f:
     json.dump({
-        'data': high_data,
-        'total': counts['HIGH'],
+        'data': all_formatted,
+        'total': len(all_list),
         'page': 1,
-        'limit': 50,
-        'total_pages': math.ceil(counts['HIGH'] / 50)
+        'limit': 500,
+        'total_pages': math.ceil(len(all_list) / 500)
     }, f)
 
-# 5) Anomalies
+# 8) Anomalies
 ano_rows = [r for r in all_list if num(r.get('Risk_Score')) >= 60]
 ano_rows.sort(key=lambda x: num(x.get('Risk_Score')), reverse=True)
 ano_data = []

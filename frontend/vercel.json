@@ -2,9 +2,6 @@
   "name": "containarisk-frontend",
   "version": 2,
   "public": true,
-  "buildCommand": "npm run build",
-  "outputDirectory": ".next",
-  "framework": "nextjs",
   "headers": [
     {
       "source": "/:path*",
