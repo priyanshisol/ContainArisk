@@ -24,11 +24,14 @@ export default function ContainerRiskProfile({ container, riskAnalysis, onViewRe
   const riskScore = Math.round((container.risk_score || 0) * 100);
   const isHighRisk = riskScore >= 75;
 
-  // Real CSV fields (0-100 scale from backend)
-  const entityTrust      = Math.round(Math.min(100, Math.max(0, (container.entity_trust_score ?? 0) * 100)));
+  // Real CSV fields — entity_trust_score is 0-100 scale, seal/tax are 0-1 scale
+  const rawTrust = container.entity_trust_score ?? 0;
+  const entityTrust      = Math.round(Math.min(100, Math.max(0, rawTrust > 1 ? rawTrust : rawTrust * 100)));
   const weightDeviation  = Math.abs(Math.round(container.weight_deviation_percent ?? 0));
-  const sealTamperProb   = Math.round(Math.min(100, Math.max(0, (container.seal_tamper_prob ?? 0) * 100)));
-  const taxEvasionProb   = Math.round(Math.min(100, Math.max(0, (container.tax_evasion_prob ?? 0) * 100)));
+  const rawSeal = container.seal_tamper_prob ?? 0;
+  const sealTamperProb   = Math.round(Math.min(100, Math.max(0, rawSeal > 1 ? rawSeal : rawSeal * 100)));
+  const rawTax = container.tax_evasion_prob ?? 0;
+  const taxEvasionProb   = Math.round(Math.min(100, Math.max(0, rawTax > 1 ? rawTax : rawTax * 100)));
 
   const declaredWeight  = container.declared_weight ?? 0;
   const measuredWeight  = container.weight ?? 0;

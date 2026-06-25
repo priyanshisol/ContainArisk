@@ -27,7 +27,10 @@ function normalize(r: any) {
   if (!r) return r;
   const raw = r.risk_score ?? r.Risk_Score ?? 0;
   const score = raw > 1 ? raw / 100 : raw;
+  const backendLevel = (r.risk_level ?? r.Risk_Level ?? '').toString().trim().toUpperCase();
+  const validLevels = ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW'];
   const derived = score >= 0.85 ? 'CRITICAL' : score >= 0.70 ? 'HIGH' : score >= 0.40 ? 'MEDIUM' : 'LOW';
+  const level = validLevels.includes(backendLevel) ? backendLevel : derived;
   return {
     ...r,
     container_id:   r.container_id   ?? r.Container_ID   ?? '—',
@@ -39,7 +42,7 @@ function normalize(r: any) {
     weight:         r.weight         ?? r.measured_weight ?? 0,
     declared_value: r.declared_value ?? r.value ?? r.Declared_Value ?? 0,
     risk_score:     score,
-    risk_level:     derived,
+    risk_level:     level,
   };
 }
 

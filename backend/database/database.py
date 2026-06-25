@@ -20,19 +20,19 @@ if url and key and key != "YOUR_SUPABASE_KEY_HERE":
         try:
             _supabase_client.table("containers").select("*").limit(1).execute()
             supabase = _supabase_client
-            print("✓ Supabase connected successfully")
+            print("[OK] Supabase connected successfully")
         except Exception as conn_error:
-            print(f"⚠ Supabase connection failed: {conn_error}")
+            print(f"[WARN] Supabase connection failed: {conn_error}")
             print("Using CSV fallback for database operations")
             supabase = None
     except Exception as e:
-        print(f"⚠ Failed to initialize Supabase: {e}")
+        print(f"[WARN] Failed to initialize Supabase: {e}")
         print("Using CSV fallback for database operations")
         supabase = None
 else:
     supabase = None
     print(
-        "⚠ SUPABASE_URL or SUPABASE_KEY is missing. Using CSV fallback for database operations."
+        "[WARN] SUPABASE_URL or SUPABASE_KEY is missing. Using CSV fallback for database operations."
     )
 
 
@@ -55,16 +55,38 @@ class CSVTableProxy:
         self.records = []
         self.update_data = {}
         self._operation = None
+        self._order_col = None
+        self._order_desc = False
+        self._range_start = None
+        self._range_end = None
+        self._count_mode = False
 
-    def select(self, columns: str = "*"):
+    def select(self, columns: str = "*", count: str = None):
         """Store select columns."""
         self.query["select"] = columns
         self._operation = "select"
+        if count == "exact":
+            self._count_mode = True
         return self
 
     def eq(self, column: str, value):
         """Add equality filter."""
         self.filters.append((column, "eq", value))
+        return self
+
+    def gt(self, column: str, value):
+        """Add greater-than filter."""
+        self.filters.append((column, "gt", value))
+        return self
+
+    def gte(self, column: str, value):
+        """Add greater-than-or-equal filter."""
+        self.filters.append((column, "gte", value))
+        return self
+
+    def lt(self, column: str, value):
+        """Add less-than filter."""
+        self.filters.append((column, "lt", value))
         return self
 
     def limit(self, count: int):
@@ -77,9 +99,21 @@ class CSVTableProxy:
         self.query["offset"] = count
         return self
 
+    def order(self, column: str, desc: bool = False):
+        """Store ordering."""
+        self._order_col = column
+        self._order_desc = desc
+        return self
+
+    def range(self, start: int, end: int):
+        """Store range for pagination."""
+        self._range_start = start
+        self._range_end = end
+        return self
+
     def execute(self):
         """Execute the query against CSV backend."""
-        if self._operation == "insert" or self.records:
+        if self._operation == "insert" or (self._operation in ("insert", "upsert") and self.records):
             if self.table_name == "containers":
                 result_data = []
                 for rec in self.records:
@@ -109,12 +143,17 @@ class CSVTableProxy:
                 # Getting multiple containers
                 limit = self.query.get("limit", 100)
                 offset = self.query.get("offset", 0)
+                if self._range_start is not None:
+                    offset = self._range_start
+                    limit = (self._range_end or self._range_start) - self._range_start + 1
                 result = csv_db.get_all_containers(limit, offset)
-                return type(
+                resp = type(
                     "Response", (), {"data": result["data"], "count": result["count"]}
                 )()
+                return resp
 
-        return type("Response", (), {"data": []})()
+        # For risk_assessment and other tables, return empty
+        return type("Response", (), {"data": [], "count": 0})()
 
     def insert(self, records):
         """Handle inserts."""

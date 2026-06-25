@@ -54,3 +54,8 @@ env/
 .LSOverride
 Icon
 hf-deploy-workspace/
+
+# Duplicate large dataset files
+*Data (1).csv
+audit.json
+bandit.json

@@ -88,14 +88,14 @@ def _get_stats():
 
 def _score_to_level(score_0_100: float) -> str:
     """Convert a 0-100 risk score to a human-readable risk level."""
-    if score_0_100 >= 70:
-        return "Critical"
+    if score_0_100 >= 85:
+        return "CRITICAL"
+    elif score_0_100 >= 70:
+        return "HIGH"
     elif score_0_100 >= 40:
-        return "High"
-    elif score_0_100 >= 20:
-        return "Medium"
+        return "MEDIUM"
     else:
-        return "Low"
+        return "LOW"
 
 
 # ---------------------------------------------------------------------------
@@ -183,7 +183,7 @@ def predict_risk_batch(rows: list[dict]) -> list[dict]:
             if key not in r2 or r2[key] is None:
                 r2[key] = "Unknown"
 
-        if "HS_Code" not in r2 or r2[key] is None:
+        if "HS_Code" not in r2 or r2["HS_Code"] is None:
             r2["HS_Code"] = 0
         if "Declaration_Time" not in r2 or r2["Declaration_Time"] is None:
             r2["Declaration_Time"] = "12:00:00"

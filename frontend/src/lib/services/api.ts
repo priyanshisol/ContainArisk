@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000',
+  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://127.0.0.1:8000',
   headers: { 'Content-Type': 'application/json' },
 });
 
@@ -14,7 +14,11 @@ export const normalizeContainer = (r: any) => {
   if (!r) return r;
   const riskRaw = r.risk_score ?? r.Risk_Score ?? r.risk_assessment?.[0]?.risk_score ?? 0;
   const riskScore = riskRaw > 1 ? riskRaw / 100 : riskRaw;
-  const normalizedLevel = riskScore >= 0.85 ? 'CRITICAL' : riskScore >= 0.70 ? 'HIGH' : riskScore >= 0.40 ? 'MEDIUM' : 'LOW';
+  // Use backend-provided risk_level when available, derive only as fallback
+  const backendLevel = (r.risk_level ?? r.Risk_Level ?? r.risk_assessment?.[0]?.risk_level ?? '').toString().trim().toUpperCase();
+  const validLevels = ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW'];
+  const derivedLevel = riskScore >= 0.85 ? 'CRITICAL' : riskScore >= 0.70 ? 'HIGH' : riskScore >= 0.40 ? 'MEDIUM' : 'LOW';
+  const normalizedLevel = validLevels.includes(backendLevel) ? backendLevel : derivedLevel;
   return {
     ...r,
     container_id:    r.container_id   ?? r.Container_ID   ?? r.id ?? '—',
@@ -198,8 +202,14 @@ export const getContainerDetails = async (id: string) => {
   try {
     const r = await api.get(`/container/${id}`);
     return normalizeContainer(r.data);
-  } catch {
-    return normalizeContainer({ container_id: id, risk_score: 0.5, risk_level: 'MEDIUM' });
+  } catch (e: any) {
+    console.error("API GET ERROR in getContainerDetails:", e);
+    return normalizeContainer({ 
+      container_id: id, 
+      risk_score: 0.5, 
+      risk_level: 'MEDIUM',
+      origin: 'ERROR: ' + (e.message || 'Unknown')
+    });
   }
 };
 

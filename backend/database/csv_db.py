@@ -216,7 +216,7 @@ def create_container(container_data: Dict[str, Any]) -> Dict[str, Any]:
             cols_to_use = {k: v for k, v in record.items() if k in df.columns}
             df = pd.concat([df, pd.DataFrame([cols_to_use])], ignore_index=True)
             df.to_csv(CONTAINERS_CSV, index=False)
-            print(f"✓ Container {container_id} saved to CSV")
+            print(f"[OK] Container {container_id} saved to CSV")
     except Exception as e:
         print(f"Error saving to CSV: {e}")
 
@@ -277,7 +277,7 @@ def save_risk_assessment(
                 if CONTAINERS_CSV.exists():
                     try:
                         df.to_csv(CONTAINERS_CSV, index=False)
-                        print(f"✓ Risk assessment saved for {container_id}")
+                        print(f"[OK] Risk assessment saved for {container_id}")
                     except Exception as e:
                         print(f"Error updating CSV: {e}")
 

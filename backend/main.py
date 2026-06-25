@@ -1,4 +1,12 @@
 import os
+import sys
+from pathlib import Path
+
+# Add backend folder to sys.path to support running from repository root
+_backend_path = Path(__file__).resolve().parent
+if str(_backend_path) not in sys.path:
+    sys.path.insert(0, str(_backend_path))
+
 import math
 from fastapi import FastAPI, UploadFile, File, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
@@ -59,6 +67,14 @@ def _load_csv():
             subset=["Container_ID"]
         )
         _df["Risk_Score"] = pd.to_numeric(_df["Risk_Score"], errors="coerce").fillna(0)
+        # Normalize Risk_Level to uppercase — CSV has mixed case ('Low', 'Medium', 'MEDIUM', etc.)
+        if "Risk_Level" in _df.columns:
+            _df["Risk_Level"] = _df["Risk_Level"].astype(str).str.strip().str.upper()
+            # Fix any NaN/empty values using derived levels
+            bad_mask = _df["Risk_Level"].isin(["NAN", "NAT", "NONE", ""])
+            _df.loc[bad_mask, "Risk_Level"] = _df.loc[bad_mask, "Risk_Score"].apply(_risk_level)
+        else:
+            _df["Risk_Level"] = _df["Risk_Score"].apply(_risk_level)
         logger.info(f"CSV loaded: {len(_df)} unique containers")
 
 
@@ -511,7 +527,7 @@ async def get_importer_containers(name: str):
                     "exporter": r.get("exporter_id"),
                     "origin": r.get("origin_country"),
                     "destination": r.get("destination_country"),
-                    "risk_score": risk_score_raw / 100.0,
+                    "risk_score": risk_score_raw,
                     "risk_level": ra.get("risk_level", "LOW"),
                     "weight": r.get("measured_weight"),
                     "value": r.get("declared_value"),
@@ -808,7 +824,7 @@ async def create_single_container(container: ContainerInput):
 
     return {
         **res1.data[0],
-        "risk_score": float(risk.get("Risk_Score", 50)) / 100.0,
+        "risk_score": float(risk.get("Risk_Score", 50)),
         "risk_level": s(risk.get("Risk_Level", "MEDIUM")),
     }
 
@@ -922,8 +938,27 @@ async def get_summary():
 
 @app.get("/high-risk-containers")
 async def get_high_risk_containers():
-    if not supabase:
-        return []
+    if not supabase or supabase.__class__.__name__ == "CSVDatabaseProxy":
+        if _df.empty:
+            return []
+        try:
+            high_risk = _df[_df["Risk_Score"] > 50].sort_values("Risk_Score", ascending=False).head(10)
+            result = []
+            for _, row in high_risk.iterrows():
+                result.append(
+                    {
+                        "container_id": str(row.get("Container_ID", "")),
+                        "importer": str(row.get("Importer_ID", "")),
+                        "exporter": str(row.get("Exporter_ID", "")),
+                        "origin": str(row.get("Origin_Country", "")),
+                        "risk_score": float(row.get("Risk_Score", 0)),
+                        "risk_level": str(row.get("Risk_Level", "LOW")).strip().upper(),
+                    }
+                )
+            return result
+        except Exception as e:
+            logger.error(f"Fallback GET /high-risk-containers error: {e}")
+            return []
     try:
         resp = (
             supabase.table("risk_assessment")
@@ -942,7 +977,7 @@ async def get_high_risk_containers():
                     "importer": c.get("importer_id"),
                     "exporter": c.get("exporter_id"),
                     "origin": c.get("origin_country"),
-                    "risk_score": float(r.get("risk_score", 0)) / 100.0,
+                    "risk_score": float(r.get("risk_score", 0)),
                     "risk_level": r.get("risk_level"),
                 }
             )
@@ -954,8 +989,18 @@ async def get_high_risk_containers():
 
 @app.get("/risk-distribution")
 async def get_risk_distribution():
-    if not supabase:
-        return {"low": 800, "medium": 200, "high": 80, "critical": 20}
+    if not supabase or supabase.__class__.__name__ == "CSVDatabaseProxy":
+        if _df.empty:
+            return {"low": 0, "medium": 0, "high": 0, "critical": 0}
+        try:
+            dist = {"low": 0, "medium": 0, "high": 0, "critical": 0}
+            rl = _df["Risk_Level"].str.strip().str.lower()
+            for lvl in dist.keys():
+                dist[lvl] = int((rl == lvl).sum())
+            return dist
+        except Exception as e:
+            logger.error(f"Fallback GET /risk-distribution error: {e}")
+            return {"low": 800, "medium": 200, "high": 80, "critical": 20}
     try:
         response = supabase.table("risk_assessment").select("risk_level").execute()
         dist = {"low": 0, "medium": 0, "high": 0, "critical": 0}
@@ -985,7 +1030,7 @@ async def get_container_details(id: str):
         **c,
         "declared_weight": float(row.get("Declared_Weight") or 0),
         "destination_port": str(row.get("Destination_Port", "")),
-        "risk_score": score / 100.0,
+        "risk_score": score,
         "risk_level": c["risk_level"],
         "entity_trust_score": float(row.get("entity_trust_score") or 0),
         "weight_deviation_percent": float(row.get("weight_deviation_percent") or 0),
@@ -997,8 +1042,20 @@ async def get_container_details(id: str):
 
 @app.get("/country-risk")
 async def get_country_risk():
-    if not supabase:
-        return []
+    if not supabase or supabase.__class__.__name__ == "CSVDatabaseProxy":
+        if _df.empty:
+            return []
+        try:
+            high_risk = _df[_df["Risk_Score"] > 50]
+            country_counts = high_risk["Origin_Country"].value_counts().to_dict()
+            result = [
+                {"country": str(k), "risk_count": int(v)}
+                for k, v in sorted(country_counts.items(), key=lambda x: x[1], reverse=True)
+            ]
+            return result
+        except Exception as e:
+            logger.error(f"Fallback GET /country-risk error: {e}")
+            return []
     try:
         response = (
             supabase.table("risk_assessment")
@@ -1022,8 +1079,20 @@ async def get_country_risk():
 
 @app.get("/importer-risk")
 async def get_importer_risk():
-    if not supabase:
-        return []
+    if not supabase or supabase.__class__.__name__ == "CSVDatabaseProxy":
+        if _df.empty:
+            return []
+        try:
+            high_risk = _df[_df["Risk_Score"] > 50]
+            importer_counts = high_risk["Importer_ID"].value_counts().to_dict()
+            result = [
+                {"importer": str(k), "risk_count": int(v)}
+                for k, v in sorted(importer_counts.items(), key=lambda x: x[1], reverse=True)[:10]
+            ]
+            return result
+        except Exception as e:
+            logger.error(f"Fallback GET /importer-risk error: {e}")
+            return []
     try:
         response = (
             supabase.table("risk_assessment")
@@ -1240,8 +1309,16 @@ async def get_trade_routes():
 
 @app.get("/risk-heatmap")
 async def get_risk_heatmap():
-    if not supabase:
-        return {}
+    if not supabase or supabase.__class__.__name__ == "CSVDatabaseProxy":
+        if _df.empty:
+            return {}
+        try:
+            high_risk = _df[_df["Risk_Score"] > 30]
+            heatmap = high_risk["Origin_Country"].value_counts().to_dict()
+            return {str(k): int(v) for k, v in heatmap.items()}
+        except Exception as e:
+            logger.error(f"Fallback GET /risk-heatmap error: {e}")
+            return {}
     try:
         response = (
             supabase.table("risk_assessment")
@@ -1268,8 +1345,26 @@ async def ask_ai(request: AIQuestionRequest):
 
 @app.get("/risk-alerts")
 async def get_risk_alerts():
-    if not supabase:
-        return []
+    if not supabase or supabase.__class__.__name__ == "CSVDatabaseProxy":
+        if _df.empty:
+            return []
+        try:
+            high_risk = _df[_df["Risk_Score"] > 70].sort_values("Risk_Score", ascending=False).head(5)
+            alerts = []
+            for _, row in high_risk.iterrows():
+                alerts.append(
+                    {
+                        "container_id": str(row.get("Container_ID", "")),
+                        "importer": str(row.get("Importer_ID", "Unknown")),
+                        "risk_score": float(row.get("Risk_Score", 0)),
+                        "risk_level": str(row.get("Risk_Level", "LOW")).strip().upper(),
+                        "message": f"High risk container detected from importer {row.get('Importer_ID')}",
+                    }
+                )
+            return alerts
+        except Exception as e:
+            logger.error(f"Fallback GET /risk-alerts error: {e}")
+            return []
     try:
         response = (
             supabase.table("risk_assessment")
@@ -1287,7 +1382,7 @@ async def get_risk_alerts():
                 {
                     "container_id": r.get("container_id"),
                     "importer": importer,
-                    "risk_score": float(r.get("risk_score", 0)) / 100.0,
+                    "risk_score": float(r.get("risk_score", 0)),
                     "risk_level": r.get("risk_level"),
                     "message": r.get("explanation"),
                 }
@@ -1368,7 +1463,7 @@ async def download_report(id: str):
         "shipping_line": r.get("shipping_line"),
         "dwell_time_hours": r.get("dwell_time_hours", 0),
         "clearance_status": r.get("clearance_status"),
-        "risk_score": float(ra.get("risk_score", 0)) / 100.0,
+        "risk_score": float(ra.get("risk_score", 0)),
         "risk_level": ra.get("risk_level", "LOW"),
     }
 
@@ -1420,7 +1515,7 @@ async def send_container_report(id: str, request: EmailReportRequest):
         "shipping_line": r.get("shipping_line"),
         "dwell_time_hours": r.get("dwell_time_hours", 0),
         "clearance_status": r.get("clearance_status"),
-        "risk_score": risk_score / 100.0,
+        "risk_score": risk_score,
         "risk_level": risk_level,
     }
 
@@ -1675,8 +1770,63 @@ async def get_risk_trends():
 @app.get("/intelligence-insights")
 async def get_intelligence_insights():
     """Dynamically generate recent insights from database state."""
-    if not supabase:
-        return []
+    if not supabase or supabase.__class__.__name__ == "CSVDatabaseProxy":
+        if _df.empty:
+            return []
+        try:
+            insights = []
+            # Insight 1: Highest risk routes
+            high_risk = _df[_df["Risk_Score"] > 50]
+            routes = {}
+            for _, row in high_risk.iterrows():
+                origin = row.get("Origin_Country")
+                dest = row.get("Destination_Country")
+                if pd.notna(origin) and pd.notna(dest):
+                    k = f"{origin} -> {dest}"
+                    routes[k] = routes.get(k, 0) + 1
+            if routes:
+                top_route = max(routes.items(), key=lambda x: x[1])
+                insights.append(
+                    {
+                        "id": "ins-1",
+                        "type": "route",
+                        "severity": "high",
+                        "message": f"{top_route[1]} high-risk shipments detected on corridor {top_route[0]}",
+                    }
+                )
+
+            # Insight 2: Suspicious Importers
+            v_high_risk = _df[_df["Risk_Score"] > 70]
+            importers = {}
+            for _, row in v_high_risk.iterrows():
+                imp = row.get("Importer_ID")
+                if pd.notna(imp):
+                    importers[imp] = importers.get(imp, 0) + 1
+            if importers:
+                top_imp = max(importers.items(), key=lambda x: x[1])
+                insights.append(
+                    {
+                        "id": "ins-2",
+                        "type": "entity",
+                        "severity": "critical",
+                        "message": f"Entity {top_imp[0]} flagged for {top_imp[1]} critical-risk violations",
+                    }
+                )
+
+            # Default insights if sparse
+            if not insights:
+                insights = [
+                    {
+                        "id": "ins-default",
+                        "type": "system",
+                        "severity": "low",
+                        "message": "System nominal. Scanning incoming manifests.",
+                    }
+                ]
+            return insights
+        except Exception as e:
+            logger.error(f"Fallback GET /intelligence-insights error: {e}")
+            return []
     try:
         insights = []
         # Insight 1: Highest risk routes

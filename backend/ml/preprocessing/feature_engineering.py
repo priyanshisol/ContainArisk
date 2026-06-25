@@ -107,6 +107,7 @@ def _standardise_columns(df: pd.DataFrame) -> pd.DataFrame:
         .str.strip()
         .str.replace(" ", "_")
     )
+    df = df.loc[:, ~df.columns.duplicated()]
     return df
 
 
